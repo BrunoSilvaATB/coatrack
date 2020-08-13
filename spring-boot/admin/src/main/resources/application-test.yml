@@ -1,0 +1,77 @@
+security:
+  oauth2:
+    client:
+      clientId: 21a84668d01527c4b788
+      clientSecret: e001ea14df6cc4d76ea95d9d73f5c177ec09e853
+      accessTokenUri: https://github.com/login/oauth/access_token
+      userAuthorizationUri: https://github.com/login/oauth/authorize
+      tokenName: oauth_token
+      authenticationScheme: query
+      clientAuthenticationScheme: form
+      scope:
+        - user:email
+        - read:user
+    resource:
+      userInfoUri: https://api.github.com/user
+
+spring:
+  data:
+    rest:
+      base-path: /api
+logging:
+  file: /tmp/coatrack.log
+  level:
+    nl: DEBUG
+    org: INFO
+    com: DEBUG
+ygg:
+  admin:
+    server:
+      url: http://localhost:8080
+    servicecovers:
+      path: /tmp
+      url: http://localhost/coatrack-servicecovers/
+
+    payment.commision:
+      variable: 50
+      fix: 1
+      bookKeeping.contact: fperezduran@bebr.nl
+    api-base-url-for-gateway: https://coatrack.eu/api/
+    call-request-fee: 0
+    database:
+      # should database be initialized with sample data during application startup?
+      insertSampleDataOnStartup: true
+      # in case of sampe data insertion, which user name to use for the api provider? 
+      #sampleDataUsername: your-github-username
+      # in case of sampe data insertion, which user name to use for the api provider? 
+      #sampleDataUsernameApiConsumer: your-github-username
+    gettingStarted:
+      consumer:
+        testService:
+          # the id is DEPRECATED and now replaced by provider username and service identifier
+          id: 1
+          # the following two elements are required to load the test service for getting started wizard
+          provider.username: BrunoSilvaATB
+          uriIdentifier: getting-started-service-consumer
+    gitService:
+      url: https://bitbucket.org/perezdf/anthill-settings.git
+      user: fpd.judo@gmail.com
+      password: fpdvip1234
+  mail:
+    verification.server.url: http://localhost:8080
+  proxy:
+    executable-jar:
+      path: ~
+      # the following field will be DEPRECATED in version 0.5
+      filename-original: ~
+      # the following field is NEW for version 0.5
+      filename-original-prefix: coatrack-proxy-
+      filename-custom:
+        prefix: coatrack-gateway-
+        suffix: .jar
+    # the following values go into the "bootstrap.properties" file of downloadable proxies
+    generate-bootstrap-properties:
+      spring.application.name.prefix: ygg-proxy-
+      spring.cloud.config.uri: http://coatrack.eu:8999
+    # when creating a new proxy, use this as default port value
+    server.port.defaultValue: 8088
