@@ -62,6 +62,10 @@
                                 <root>src/main/java</root>
                                 <root>src/test</root>
                             </roots>
+                            <!-- This will exclude the license maven plugin to write headers on the properties files in the resources folder located on the tests folder -->
+                            <excludes>
+                                <exclude>src/test/resources</exclude>
+                            </excludes>
                         </configuration>
                     </execution>
                 </executions>
