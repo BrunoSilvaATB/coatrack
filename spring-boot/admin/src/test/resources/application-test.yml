@@ -19,22 +19,14 @@ ygg:
     payment.commision:
       variable: 50
       fix: 1
-      bookKeeping.contact: fperezduran@bebr.nl
+      bookKeeping.contact: email@example.com
     api-base-url-for-gateway: https://coatrack.eu/api/
     call-request-fee: 0
     database:
-      # should database be initialized with sample data during application startup?
       insertSampleDataOnStartup: true
-      # in case of sampe data insertion, which user name to use for the api provider? 
-      #sampleDataUsername: your-github-username
-      # in case of sampe data insertion, which user name to use for the api provider? 
-      #sampleDataUsernameApiConsumer: your-github-username
     gettingStarted:
       consumer:
         testService:
-          # the id is DEPRECATED and now replaced by provider username and service identifier
-          id: 1
-          # the following two elements are required to load the test service for getting started wizard
           provider.username: BrunoSilvaATB
           uriIdentifier: getting-started-service-consumer
   mail:
@@ -42,16 +34,11 @@ ygg:
   proxy:
     executable-jar:
       path: ~
-      # the following field will be DEPRECATED in version 0.5
-      filename-original: ~
-      # the following field is NEW for version 0.5
       filename-original-prefix: coatrack-proxy-
       filename-custom:
         prefix: coatrack-gateway-
         suffix: .jar
-    # the following values go into the "bootstrap.properties" file of downloadable proxies
     generate-bootstrap-properties:
       spring.application.name.prefix: ygg-proxy-
       spring.cloud.config.uri: http://coatrack.eu:8999
-    # when creating a new proxy, use this as default port value
     server.port.defaultValue: 8088
