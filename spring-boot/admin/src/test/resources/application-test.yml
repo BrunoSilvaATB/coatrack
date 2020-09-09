@@ -11,10 +11,10 @@ logging:
 ygg:
   admin:
     server:
-      url: http://localhost:8080
+      url: http://dummy-url.coatrack.eu
     servicecovers:
       path: /tmp
-      url: http://localhost/coatrack-servicecovers/
+      url: http://dummy-test-url.coatrack.eu/coatrack-servicecovers/
 
     payment.commision:
       variable: 50
@@ -27,10 +27,12 @@ ygg:
     gettingStarted:
       consumer:
         testService:
-          provider.username: BrunoSilvaATB
+          provider.username: dummyTestProviderUsername
           uriIdentifier: getting-started-service-consumer
   mail:
-    verification.server.url: http://localhost:8080
+    verification.server.url: http://dummy-test-url.coatrack.eu
+    sender.user: dummy-mail@example.com
+    sender.password: dummyTestPassword
   proxy:
     executable-jar:
       path: ~
@@ -40,5 +42,5 @@ ygg:
         suffix: .jar
     generate-bootstrap-properties:
       spring.application.name.prefix: ygg-proxy-
-      spring.cloud.config.uri: http://coatrack.eu:8999
+      spring.cloud.config.uri: http://dummy-test-config-url.coatrack.eu
     server.port.defaultValue: 8088
