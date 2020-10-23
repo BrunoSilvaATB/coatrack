@@ -90,6 +90,18 @@ public class AdminProxiesController {
     @Autowired
     private RestTemplate restTemplate;
 
+    private List<String> sensitiveHeadersList = Arrays.asList("Cookie","Set-Cookie","Authorization");
+
+    private String concatSelectedSensitiveHeadersIntoString(List <String> selectedSensitiveHeaders){
+        String sensitiveHeadersConfig = "";
+        if (selectedSensitiveHeaders != null) {
+            for (String selectedSensitiveHeader : selectedSensitiveHeaders) {
+                sensitiveHeadersConfig = sensitiveHeadersConfig.concat(selectedSensitiveHeader + ",");
+            }
+        }
+       return sensitiveHeadersConfig;
+    }
+
     @RequestMapping(value = "", method = GET)
     public ModelAndView proxyListPage() {
         ModelAndView mav = new ModelAndView();
@@ -119,6 +131,7 @@ public class AdminProxiesController {
 
         mav.addObject("proxy", p);
         mav.addObject("services", serviceApiRepository.findByDeletedWhen(null));
+        mav.addObject("sensitiveHeaders", sensitiveHeadersList);
         mav.addObject("mode", 0);
 
         mav.setViewName(ADMIN_PROXY_EDITOR);
@@ -136,6 +149,7 @@ public class AdminProxiesController {
         mav.addObject("proxy", proxy);
 
         mav.addObject("services", serviceApiRepository.findByDeletedWhen(null));
+        mav.addObject("sensitiveHeaders", sensitiveHeadersList);
         mav.addObject("mode", 1);
 
         mav.setViewName(ADMIN_PROXY_EDITOR);
@@ -144,7 +158,7 @@ public class AdminProxiesController {
 
     @PostMapping(value = "/add")
     public ModelAndView addProxy(@ModelAttribute Proxy proxy,
-            @RequestParam(required = false) List<Long> selectedServices) throws IOException, GitAPIException, URISyntaxException {
+            @RequestParam(required = false) List<Long> selectedServices, @RequestParam(required = false) List<String> selectedSensitiveHeaders) throws IOException, GitAPIException, URISyntaxException {
         log.debug("POST call to proxy/add: " + proxy.toString());
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -152,6 +166,9 @@ public class AdminProxiesController {
 
         proxy.setId(UUID.randomUUID().toString());
 
+        String sensitiveHeadersString = concatSelectedSensitiveHeadersIntoString(selectedSensitiveHeaders);
+
+        proxy.setSensitiveHeaders(sensitiveHeadersString);
         createProxyAction.setProxy(proxy);
         createProxyAction.setUser(user);
         createProxyAction.setSelectedServices(selectedServices);
@@ -185,13 +202,9 @@ public class AdminProxiesController {
                     .forEach(service -> proxyStored.getServiceApis().add(service));
         }
 
-        String sensitiveHeadersConfig = "";
-        if (selectedSensitiveHeaders != null) {
-            for (String selectedSensitiveHeader : selectedSensitiveHeaders) {
-                sensitiveHeadersConfig = sensitiveHeadersConfig.concat(selectedSensitiveHeader + ";");
-            }
-            proxyStored.setSensitiveHeaders(sensitiveHeadersConfig);
-        }
+        String sensitiveHeadersString = concatSelectedSensitiveHeadersIntoString(selectedSensitiveHeaders);
+
+        proxyStored.setSensitiveHeaders(sensitiveHeadersString);
         proxyRepository.save(proxyStored);
 
         // transmit config changes to config server git repo
