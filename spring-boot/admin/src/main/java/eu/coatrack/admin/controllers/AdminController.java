@@ -316,6 +316,30 @@ public class AdminController {
         }
     }
 
+    @RequestMapping(value = "/dashboard/serviceStatsChartCanvas", method = GET, produces = "application/json")
+    @ResponseBody
+    public DoughnutChart generateServiceStatisticsDoughnutChart(
+            @RequestParam("dateFrom") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate selectedTimePeriodStart,
+            @RequestParam("dateUntil") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate selectedTimePeriodEnd) {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        List<StatisticsPerService> userStatsList = metricsAggregationCustomRepository.getStatisticsPerServiceByServicesOwnedByLoggedInUserAndDateRange(serviceApiRepository.findByOwnerUsername(auth.getName()), selectedTimePeriodStart, selectedTimePeriodEnd);
+        DoughnutDataset dataset = new DoughnutDataset()
+                .setLabel("Service API calls")
+                .addBackgroundColors(Color.AQUA_MARINE, Color.LIGHT_BLUE, Color.LIGHT_SALMON, Color.LIGHT_BLUE, Color.GRAY)
+                .setBorderWidth(2);
+        userStatsList.forEach(stats -> dataset.addData(stats.getNoOfCalls()));
+        if (userStatsList.size() > 0) {
+            DoughnutData data = new DoughnutData()
+                    .addDataset(dataset);
+            userStatsList.forEach(stats -> data.addLabel(stats.getService()));
+
+            return new DoughnutChart(data);
+        } else {
+            return new DoughnutChart();
+        }
+    }
+
     @RequestMapping(value = "/dashboard/httpResponseStatsChart", method = GET, produces = "application/json")
     @ResponseBody
     public DoughnutChart generateHttpResponseStatisticsDoughnutChart(

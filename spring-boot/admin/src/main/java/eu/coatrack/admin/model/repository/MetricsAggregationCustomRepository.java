@@ -9,9 +9,9 @@ package eu.coatrack.admin.model.repository;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,10 +20,7 @@ package eu.coatrack.admin.model.repository;
  * #L%
  */
 
-import eu.coatrack.admin.model.vo.MetricsAggregation;
-import eu.coatrack.admin.model.vo.StatisticsPerApiUser;
-import eu.coatrack.admin.model.vo.StatisticsPerDay;
-import eu.coatrack.admin.model.vo.StatisticsPerHttpStatusCode;
+import eu.coatrack.admin.model.vo.*;
 import eu.coatrack.api.Metric;
 import eu.coatrack.api.MetricType;
 import eu.coatrack.api.ServiceApi;
@@ -34,6 +31,7 @@ import org.springframework.util.Assert;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.TemporalType;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -43,8 +41,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.persistence.TemporalType;
-import eu.coatrack.admin.model.vo.StatisticsPerService;
+import java.util.stream.Collectors;
 
 /**
  * Custom repository to get several aggregations of Metrics that are not
@@ -379,6 +376,28 @@ public class MetricsAggregationCustomRepository {
         return getSummarizedMetrics(serviceId, null, fromDate, untilDate);
     }
 
+    public List<StatisticsPerService> getStatisticsPerServiceByServicesOwnedByLoggedInUserAndDateRange(
+            List<ServiceApi> servicesOwnedByLoggedInUser,
+            LocalDate fromDate,
+            LocalDate untilDate) {
+
+        List<StatisticsPerService> listOfStatisticsPerServiceOwnedByLoggedInUser = new ArrayList<>();
+
+        servicesOwnedByLoggedInUser.forEach((service) -> {
+            List<MetricsAggregation> getSummarizedMetricsFilteredByMetricTypeResponse = getSummarizedMetrics(service.getId(), null, fromDate, untilDate).stream().filter(x -> x.getType() == MetricType.RESPONSE).collect(Collectors.toList());
+
+            long totalNoOfCallsPerService = 0L;
+            if (getSummarizedMetricsFilteredByMetricTypeResponse.size() != 0) {
+                for (MetricsAggregation serviceMetrics : getSummarizedMetricsFilteredByMetricTypeResponse) {
+                    totalNoOfCallsPerService = totalNoOfCallsPerService + serviceMetrics.getCount();
+                }
+                StatisticsPerService statisticsPerEachService = new StatisticsPerService(service.getName(), totalNoOfCallsPerService, 0);
+                listOfStatisticsPerServiceOwnedByLoggedInUser.add(statisticsPerEachService);
+            }
+        });
+        return listOfStatisticsPerServiceOwnedByLoggedInUser;
+    }
+
     public List<MetricsAggregation> getSummarizedMetricsByProxyId(String proxyId) {
         return getSummarizedMetrics(null, proxyId, null, null);
     }
@@ -568,11 +587,11 @@ public class MetricsAggregationCustomRepository {
      * as this is an internal behaviour of the metrics repository to be changed
      * later.
      *
-     * @param serviceId - optional parameter to filter by service
-     * @param proxyId - optional parameter to filter by proxy
-     * @param metricType - optional parameter to filter by metric metricType
-     * @param onlyHttpErrorCodes - if TRUE, only http codes that indicate errors
-     * are taken into account
+     * @param serviceId           - optional parameter to filter by service
+     * @param proxyId             - optional parameter to filter by proxy
+     * @param metricType          - optional parameter to filter by metric metricType
+     * @param onlyHttpErrorCodes  - if TRUE, only http codes that indicate errors
+     *                            are taken into account
      * @param onlyResponseMetrics
      * @param apiProviderUsername
      * @return List of Metric database IDs, which are the latest per session and
