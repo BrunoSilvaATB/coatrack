@@ -90,9 +90,9 @@
                                 <div class="col-md-9 col-sm-9 col-xs-12">
                                     <div th:each="sensitiveHeader : ${sensitiveHeaders}" class="checkbox">
                                         <label>
-                                            <input type="checkbox" name="selectedSensitiveHeaders"
-                                                   th:value="${sensitiveHeader}"
-                                                   th:checked="${proxy?.getSensitiveHeaders()?.contains(sensitiveHeader)}? 'true': 'false'"/>
+                                            <input type="checkbox" th:name="${'forward'+ sensitiveHeader}"
+                                                   value="true"
+                                                   th:checked="${proxy.__${'forward'+ sensitiveHeader}__}"/>
                                             <span th:text="${sensitiveHeader}"/>
                                         </label>
                                     </div>

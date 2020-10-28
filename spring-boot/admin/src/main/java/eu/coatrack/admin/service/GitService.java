@@ -57,6 +57,22 @@ public class GitService {
     @Value("${ygg.admin.api-base-url-for-gateway}")
     private String adminApiBaseUrlForGateway;
 
+    private String ConvertSelectedSensitiveHeadersToZuul(Proxy proxy) {
+
+        String sensitiveHeadersConcatenated = "";
+        if (!proxy.isForwardCookie()) {
+            sensitiveHeadersConcatenated = sensitiveHeadersConcatenated.concat("Cookie,");
+        }
+        if (!proxy.isForwardSetCookie()) {
+            sensitiveHeadersConcatenated = sensitiveHeadersConcatenated.concat("Set-Cookie,");
+        }
+        if (!proxy.isForwardAuthorization()) {
+            sensitiveHeadersConcatenated = sensitiveHeadersConcatenated.concat("Authorization,");
+        }
+
+        return "zuul.sensitiveHeaders: " + sensitiveHeadersConcatenated;
+    }
+
     public void init() throws IOException, GitAPIException {
 
         String tmpDirStr = System.getProperty("java.io.tmpdir");
@@ -106,9 +122,8 @@ public class GitService {
         }
         writer.println("zuul.host.connect-timeout-millis: 150000");
         writer.println("zuul.host.socket-timeout-millis: 150000");
-        if (proxy.getSensitiveHeaders() != null) {
-            writer.println("zuul.sensitiveHeaders:" + " " + proxy.getSensitiveHeaders());
-        }
+        writer.println(ConvertSelectedSensitiveHeadersToZuul(proxy));
+
         writer.close();
 
         AddCommand addCommand = git.add();

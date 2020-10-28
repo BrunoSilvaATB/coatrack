@@ -55,7 +55,9 @@ public class Proxy {
 
     private String configServerPassword;
 
-    private String sensitiveHeaders;
+    private boolean forwardCookie;
+    private boolean forwardSetCookie;
+    private boolean forwardAuthorization;
 
     @OneToOne
     private User owner;
@@ -157,12 +159,28 @@ public class Proxy {
         this.port = port;
     }
 
-    public String getSensitiveHeaders() {
-        return sensitiveHeaders;
+    public boolean isForwardCookie() {
+        return forwardCookie;
     }
 
-    public void setSensitiveHeaders(String sensitiveHeaders) {
-        this.sensitiveHeaders = sensitiveHeaders;
+    public void setForwardCookie(boolean forwardCookie) {
+        this.forwardCookie = forwardCookie;
+    }
+
+    public boolean isForwardSetCookie() {
+        return forwardSetCookie;
+    }
+
+    public void setForwardSetCookie(boolean forwardSetCookie) {
+        this.forwardSetCookie = forwardSetCookie;
+    }
+
+    public boolean isForwardAuthorization() {
+        return forwardAuthorization;
+    }
+
+    public void setForwardAuthorization(boolean forwardAuthorization) {
+        this.forwardAuthorization = forwardAuthorization;
     }
 
     @Override
