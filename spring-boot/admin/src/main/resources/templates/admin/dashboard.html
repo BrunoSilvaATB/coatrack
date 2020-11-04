@@ -72,7 +72,6 @@
                                 var canvas = document.getElementById(canvasId);
 
                                 if (canvas != null) {
-
                                     if (window.charts[canvasId] != undefined)
                                     {
                                         window.charts[canvasId].destroy();
@@ -87,6 +86,7 @@
                         }
                     });
                 }
+
                 function loadChartsForNewDateRange(dateRangeUrlSuffix) {
 
                     loadStatisticsPerApiConsumerInDescendingOrderByNoOfCalls(dateRangeUrlSuffix);
