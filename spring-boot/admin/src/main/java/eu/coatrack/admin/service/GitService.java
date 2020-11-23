@@ -57,7 +57,7 @@ public class GitService {
     @Value("${ygg.admin.api-base-url-for-gateway}")
     private String adminApiBaseUrlForGateway;
 
-    private String ConvertSelectedSensitiveHeadersToZuul(Proxy proxy) {
+    private String ConvertSelectedSensitiveHeadersToZuulConfigFormat(Proxy proxy) {
 
         String sensitiveHeadersConcatenated = "";
         if (!proxy.isForwardCookie()) {
@@ -122,7 +122,7 @@ public class GitService {
         }
         writer.println("zuul.host.connect-timeout-millis: 150000");
         writer.println("zuul.host.socket-timeout-millis: 150000");
-        writer.println(ConvertSelectedSensitiveHeadersToZuul(proxy));
+        writer.println(ConvertSelectedSensitiveHeadersToZuulConfigFormat(proxy));
 
         writer.close();
 
