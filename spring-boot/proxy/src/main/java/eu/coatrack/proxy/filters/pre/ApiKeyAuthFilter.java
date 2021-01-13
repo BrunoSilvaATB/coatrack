@@ -28,13 +28,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
 
@@ -43,7 +45,7 @@ import java.util.Collections;
  *
  * @author gr-hovest
  */
-public class ApiKeyAuthFilter extends GenericFilterBean {
+public class ApiKeyAuthFilter extends OncePerRequestFilter {
 
     private static final Logger log = LoggerFactory.getLogger(ApiKeyAuthFilter.class);
 
@@ -51,17 +53,25 @@ public class ApiKeyAuthFilter extends GenericFilterBean {
     private ApiKeyAuthTokenVerifier apiKeyAuthTokenVerifier;
 
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-        log.debug(String.format("Api key auth filter received request of type %s", servletRequest.getClass()));
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        AntPathMatcher pathMatcher = new AntPathMatcher();
+        return pathMatcher.match("/favicon.ico", request.getServletPath());
+    }
 
-        if (servletRequest instanceof HttpServletRequest) {
-            final HttpServletRequest req = (HttpServletRequest) servletRequest;
-            final String keyParam = req.getParameter(ApiKey.API_KEY_REQUEST_PARAMETER_NAME);
-            log.debug(String.format("request parameter '%s' has value '%s'", ApiKey.API_KEY_REQUEST_PARAMETER_NAME, keyParam));
+    @Override
+    protected void doFilterInternal(HttpServletRequest servletRequest, HttpServletResponse servletResponse, FilterChain filterChain) throws ServletException, IOException {
+        {
+            log.debug(String.format("Api key auth filter received request of type %s", servletRequest.getClass()));
 
-            Authentication authToken = new ApiKeyAuthToken(keyParam, Collections.emptyList());
-            SecurityContextHolder.getContext().setAuthentication(authToken);
+            if (servletRequest instanceof HttpServletRequest) {
+                final HttpServletRequest req = (HttpServletRequest) servletRequest;
+                final String keyParam = req.getParameter(ApiKey.API_KEY_REQUEST_PARAMETER_NAME);
+                log.debug(String.format("request parameter '%s' has value '%s'", ApiKey.API_KEY_REQUEST_PARAMETER_NAME, keyParam));
+
+                Authentication authToken = new ApiKeyAuthToken(keyParam, Collections.emptyList());
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
+            filterChain.doFilter(servletRequest, servletResponse);
         }
-        filterChain.doFilter(servletRequest, servletResponse);
     }
 }
